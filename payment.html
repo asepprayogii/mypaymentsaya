@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment — Asep Prayogi</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root[data-theme="dark"] {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --card: #1a1a24;
+      --border: #2a2a38;
+      --accent: #7c6aff;
+      --accent2: #ff6a9e;
+      --gold: #f5c842;
+      --text: #e8e8f0;
+      --muted: #7070a0;
+      --radius: 16px;
+      --shadow: rgba(0,0,0,0.5);
+      --ticker-bg: #0d0d14;
+      --toggle-icon: "☀️";
+    }
+
+    :root[data-theme="light"] {
+      --bg: #f4f4fa;
+      --surface: #ffffff;
+      --card: #ffffff;
+      --border: #dcdce8;
+      --accent: #5a47e8;
+      --accent2: #e84d8a;
+      --gold: #d4a800;
+      --text: #1a1a2e;
+      --muted: #7070a0;
+      --radius: 16px;
+      --shadow: rgba(90,71,232,0.1);
+      --ticker-bg: #1a1a2e;
+      --toggle-icon: "🌙";
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background 0.4s, color 0.4s;
+    }
+
+    :root[data-theme="dark"] body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 10%, rgba(124,106,255,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(255,106,158,0.08) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    :root[data-theme="light"] body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 10%, rgba(90,71,232,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(232,77,138,0.05) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* TICKER */
+    .ticker-wrap {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: var(--ticker-bg);
+      overflow: hidden;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+
+    .ticker-label {
+      flex-shrink: 0;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 0 14px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      z-index: 1;
+    }
+
+    .ticker-track {
+      display: flex;
+      white-space: nowrap;
+      animation: ticker 28s linear infinite;
+    }
+
+    .ticker-track span {
+      font-size: 12px;
+      color: #b8b8d8;
+      padding: 0 32px;
+      letter-spacing: 0.3px;
+    }
+
+    .ticker-track span strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .ticker-track span .dot {
+      color: var(--accent2);
+      margin: 0 8px;
+    }
+
+    @keyframes ticker {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* THEME TOGGLE */
+    .theme-toggle {
+      position: fixed;
+      top: 46px;
+      right: 20px;
+      z-index: 99;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 16px var(--shadow);
+    }
+
+    .theme-toggle:hover { border-color: var(--accent); transform: translateY(-1px); }
+
+    .toggle-slider {
+      width: 36px;
+      height: 20px;
+      background: var(--border);
+      border-radius: 100px;
+      position: relative;
+      transition: background 0.3s;
+    }
+
+    .toggle-slider::after {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.3s;
+    }
+
+    :root[data-theme="light"] .toggle-slider { background: var(--accent); }
+    :root[data-theme="light"] .toggle-slider::after { transform: translateX(16px); }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 100px 20px 80px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* HEADER */
+    header { text-align: center; margin-bottom: 52px; }
+
+    .avatar {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      border: 3px solid transparent;
+      background:
+        linear-gradient(var(--bg), var(--bg)) padding-box,
+        linear-gradient(135deg, var(--accent), var(--accent2)) border-box;
+      box-shadow: 0 0 40px rgba(124,106,255,0.4);
+      overflow: hidden;
+      animation: pulseGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 32px rgba(124,106,255,0.35); }
+      50%       { box-shadow: 0 0 52px rgba(124,106,255,0.6), 0 0 80px rgba(255,106,158,0.2); }
+    }
+
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .avatar-fallback {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 36px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(28px, 5vw, 44px);
+      font-weight: 700;
+      letter-spacing: 0px;
+      background: linear-gradient(120deg, var(--accent) 0%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .tagline {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 300;
+    }
+
+    /* QRIS */
+    .qris-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 36px 24px;
+      text-align: center;
+      margin-bottom: 32px;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.4s, border-color 0.4s;
+      box-shadow: 0 4px 24px var(--shadow);
+    }
+
+    .qris-section::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--gold));
+    }
+
+    .qris-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, rgba(124,106,255,0.2), rgba(255,106,158,0.15));
+      border: 1px solid rgba(124,106,255,0.3);
+      border-radius: 100px;
+      padding: 5px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #b8b0ff;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .qris-section h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .qris-section .sub { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+
+    .qris-owner {
+      font-size: 13px;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 20px;
+      letter-spacing: 0.3px;
+    }
+
+    .qris-img-wrap {
+      width: 220px;
+      height: 220px;
+      border-radius: 16px;
+      margin: 0 auto;
+      overflow: hidden;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .qris-img-wrap img { width: 100%; height: 100%; object-fit: contain; }
+
+    .qris-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      background: var(--surface);
+      border: 2px dashed var(--border);
+      border-radius: 14px;
+      width: 220px;
+      height: 220px;
+      margin: 0 auto;
+      justify-content: center;
+    }
+
+    /* ACCORDION */
+    .accordion { margin-bottom: 16px; }
+
+    .accordion-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      padding: 16px 20px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      user-select: none;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 12px var(--shadow);
+    }
+
+    .accordion-header:hover { border-color: var(--accent); background: var(--surface); }
+
+    .accordion-header.open {
+      border-radius: var(--radius) var(--radius) 0 0;
+      border-color: var(--accent);
+      border-bottom-color: var(--border);
+      background: var(--surface);
+    }
+
+    .acc-left { display: flex; align-items: center; gap: 12px; }
+
+    .acc-icon-wrap {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: rgba(124,106,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .acc-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; }
+    .acc-count { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    .acc-arrow { color: var(--muted); transition: transform 0.3s; font-size: 18px; line-height: 1; }
+    .accordion-header.open .acc-arrow { transform: rotate(180deg); }
+
+    .accordion-body {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--accent);
+      border-top: none;
+      border-radius: 0 0 var(--radius) var(--radius);
+      padding: 16px;
+    }
+
+    .accordion-body.open {
+      display: block;
+      animation: slideDown 0.25s ease;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* GRID + CARD */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: border-color 0.2s, transform 0.2s, background 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      background: var(--surface);
+      box-shadow: 0 4px 20px var(--shadow);
+    }
+
+    .icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+      background: #fff;
+      padding: 5px;
+    }
+
+    .icon img { width: 100%; height: 100%; object-fit: contain; }
+
+    .card-info { flex: 1; min-width: 0; }
+    .bank-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 2px; }
+    .account-name { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+    .account-number { font-size: 13px; color: var(--text); font-weight: 500; letter-spacing: 0.4px; }
+
+    .copy-btn {
+      background: rgba(124,106,255,0.1);
+      border: 1px solid rgba(124,106,255,0.2);
+      border-radius: 8px;
+      color: var(--accent);
+      padding: 6px 10px;
+      font-size: 11px;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .copy-btn:hover { background: rgba(124,106,255,0.25); }
+    .copy-btn.copied { background: rgba(50,200,120,0.15); border-color: rgba(50,200,120,0.3); color: #50c878; }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 12px 24px;
+      font-size: 13px;
+      color: #50c878;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 999;
+      white-space: nowrap;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    footer {
+      text-align: center;
+      margin-top: 56px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 500px) {
+      .container { padding: 90px 14px 56px; }
+      header { margin-bottom: 32px; }
+      .grid { grid-template-columns: 1fr; }
+      .qris-img-wrap, .qris-placeholder { width: 180px; height: 180px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-label">⚡ INFO</div>
+  <div style="overflow:hidden;flex:1;">
+    <div class="ticker-track" id="tickerTrack">
+      <span>Terima kasih sudah melakukan pembayaran kepada <strong>Asep Prayogi</strong> <span class="dot">•</span> Harap sertakan nama Anda saat transfer agar lebih mudah diidentifikasi <span class="dot">•</span> QRIS tersedia untuk semua dompet digital & mobile banking <span class="dot">•</span> Konfirmasi pembayaran setelah transfer selesai ya! <span class="dot">•</span> Amanah &amp; terpercaya — pembayaran Anda pasti diterima <span class="dot">•</span> Jika ada kendala, silakan hubungi kami segera <span class="dot">•</span></span>
+      <span>Terima kasih sudah melakukan pembayaran kepada <strong>Asep Prayogi</strong> <span class="dot">•</span> Harap sertakan nama Anda saat transfer agar lebih mudah diidentifikasi <span class="dot">•</span> QRIS tersedia untuk semua dompet digital & mobile banking <span class="dot">•</span> Konfirmasi pembayaran setelah transfer selesai ya! <span class="dot">•</span> Amanah &amp; terpercaya — pembayaran Anda pasti diterima <span class="dot">•</span> Jika ada kendala, silakan hubungi kami segera <span class="dot">•</span></span>
+    </div>
+  </div>
+</div>
+
+<!-- THEME TOGGLE -->
+<button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">
+  <div class="toggle-slider"></div>
+  <span id="themeLabel">Mode Terang</span>
+</button>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="avatar" id="avatarWrap">
+      <img src="foto/asep.jpg" alt="Asep Prayogi" id="avatarImg">
+    </div>
+    <h1>Asep Prayogi</h1>
+    <p class="tagline">Pilih metode pembayaran yang kamu inginkan</p>
+  </header>
+
+  <!-- QRIS -->
+  <div class="qris-section">
+    <div class="qris-badge">⚡ Direkomendasikan</div>
+    <h2>Scan QRIS</h2>
+    <p class="sub">Berlaku untuk semua aplikasi dompet digital & mobile banking</p>
+    <p class="qris-owner">👤 a.n. Asep Prayogi</p>
+    <div id="qrisContainer"></div>
+  </div>
+
+  <!-- BANK -->
+  <div class="accordion">
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+      <div class="acc-left">
+        <div class="acc-icon-wrap">🏦</div>
+        <div>
+          <div class="acc-title">Transfer Bank</div>
+          <div class="acc-count">7 rekening tersedia</div>
+        </div>
+      </div>
+      <span class="acc-arrow">▾</span>
+    </div>
+    <div class="accordion-body">
+      <div class="grid">
+        <div class="card">
+          <div class="icon"><img src="foto/BRI.jpg" alt="BRI" onerror="this.parentNode.innerHTML='<span style=color:#1b4fa8;font-weight:800;font-size:13px>BRI</span>'"></div>
+          <div class="card-info">
+            <div class="bank-name">BRI</div>
+            <div class="account-name">a.n. Asep Prayogi</div>
+            <div class="account-number">5352 0102 7824 530</div>
+          </div>
+          <button class="copy-btn" onclick="copyText('535201027824530',this)">Copy</button>
+        </div>
+        <div class="card">
+          <div class="icon"><img src="foto/BNI.jpg" alt="BNI" onerror="this.parentNode.innerHTML='<span style=color:#f47920;font-weight:800;font-size:13px>BNI</span>'"></div>
+          <div class="card-info">
+            <div class="bank-name">BNI</div>
+            <div class="account-name">a.n. Asep Prayogi</div>
+            <div class="account-number">1815930863</div>
+          </div>
+          <button class="copy-btn" onclick="copyText('1815930863',this)">Copy</button>
+        </div>
+        <div class="card">
+          <div class="icon"><img src="foto/BCA.jpg" alt="BCA" onerror="this.parentNode.innerHTML='<span style=color:#0066b2;font-weight:800;font-size:13px>BCA</span>'"></div>
+          <div class="card-info">
+            <div class="bank-name">BCA</div>
+            <div class="account-name">a.n. Asep Prayogi</div>
+            <div class="account-number">6730537377</div>
+          </div>
+          <button class="copy-btn" onclick="copyText('6730537377',this)">Copy</button>
+        </div>
+        <div class="card">
+          <div class="icon"><img src="foto/BTN.jpg" alt="BTN" onerror="this.parentNode.innerHTML='<span style=color:#e31e26;font-weight:800;font-size:12px>BTN</span>'"></div>
+          <div class="card-info">
+            <div class="bank-name">BTN</div>
+            <div class="account-name">a.n. Asep Prayogi</div>
+            <div class="account-number">46901610205490</div>
+          </div>
+          <button class="copy-btn" onclick="copyText('46901610205490',this)">Copy</button>
+        </div>
+        <div class="card">
+          <div class="icon"><img src="foto/SEABANK.jpg" alt="SeaBank" onerror="this.parentNode.innerHTML='<span style=color:#0066cc;font-weight:800;font-size:11px>SEA</span>'"></div>
+          <div class="card-info">
+            <div class="bank-name">SeaBank</div>
+            <div class="account-name">a.n. Asep Prayogi</div>
+            <div class="account-number">901374241409</div>
+          </div>
+          <button class="copy-btn" onclick="copyText('901374241409',this)">Copy</button>
+        </div>
+        <div class="card">
+          <div class="icon"><img src="foto/JAGO.jpg" alt="Bank Jago" onerror="this.parentNode.innerHTML='<span style=color:#00c781;font-weight:800;font-size:11px>JAGO</span>'"></div>
+          <div class="card-info">
+            <div class="bank-name">Bank Jago</div>
+            <div class="account-name">a.n. Asep Prayogi</div>
+            <div class="account-number">502763629423</div>
+          </div>
+          <button class="copy-btn" onclick="copyText('502763629423',this)">Copy</button>
+        </div>
+        <div class="card">
+          <div class="icon"><img src="foto/KROM.jpg" alt="Krom Bank" onerror="this.parentNode.innerHTML='<span style=color:#ff4f00;font-weight:800;font-size:11px>KROM</span>'"></div>
+          <div class="card-info">
+            <div class="bank-name">Krom Bank</div>
+            <div class="account-name">a.n. Asep Prayogi</div>
+            <div class="account-number">770033760601</div>
+          </div>
+          <button class="copy-btn" onclick="copyText('770033760601',this)">Copy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- E-WALLET -->
+  <div class="accordion">
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+      <div class="acc-left">
+        <div class="acc-icon-wrap">💳</div>
+        <div>
+          <div class="acc-title">E-Wallet</div>
+          <div class="acc-count">4 dompet digital tersedia</div>
+        </div>
+      </div>
+      <span class="acc-arrow">▾</span>
+    </div>
+    <div class="accordion-body">
+      <div class="grid">
+        <div class="card">
+          <div class="icon" style="background:#118eea;"><img src="foto/DANA.jpg" alt="DANA" onerror="this.parentNode.innerHTML='<span style=color:#fff;font-weight:800>DANA</span>'"></div>
+          <div class="card-info">
+            <div class="bank-name">DANA</div>
+            <div class="account-name">a.n. Asep Prayogi</div>
+            <div class="account-number">082244760047</div>
+          </div>
+          <button class="copy-btn" onclick="copyText('082244760047',this)">Copy</button>
+        </div>
+        <div class="card">
+          <div class="icon" style="background:#00aed6;"><img src="foto/GOPAY.jpg" alt="GoPay" onerror="this.parentNode.innerHTML='<span style=color:#fff;font-weight:800;font-size:11px>GOPAY</span>'"></div>
+          <div class="card-info">
+            <div class="bank-name">GoPay</div>
+            <div class="account-name">a.n. Asep Prayogi</div>
+            <div class="account-number">082289642247</div>
+          </div>
+          <button class="copy-btn" onclick="copyText('082289642247',this)">Copy</button>
+        </div>
+        <div class="card">
+          <div class="icon" style="background:#4c3494;"><img src="foto/OVO.jpg" alt="OVO" onerror="this.parentNode.innerHTML='<span style=color:#fff;font-weight:800>OVO</span>'"></div>
+          <div class="card-info">
+            <div class="bank-name">OVO</div>
+            <div class="account-name">a.n. Asep Prayogi</div>
+            <div class="account-number">082289642247</div>
+          </div>
+          <button class="copy-btn" onclick="copyText('082289642247',this)">Copy</button>
+        </div>
+        <div class="card">
+          <div class="icon" style="background:#ee4d2d;"><img src="foto/SHOOPEPAY.jpg" alt="ShopeePay" onerror="this.parentNode.innerHTML='<span style=color:#fff;font-weight:800;font-size:10px>SPAY</span>'"></div>
+          <div class="card-info">
+            <div class="bank-name">ShopeePay</div>
+            <div class="account-name">a.n. Asep Prayogi</div>
+            <div class="account-number">082289642247</div>
+          </div>
+          <button class="copy-btn" onclick="copyText('082289642247',this)">Copy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Dibuat Oleh · Asep Prayogi &copy; 2026</footer>
+</div>
+
+<div class="toast" id="toast">✓ Nomor berhasil disalin!</div>
+
+<script>
+  // Avatar fallback
+  document.getElementById('avatarImg').onerror = function() {
+    const wrap = document.getElementById('avatarWrap');
+    wrap.innerHTML = '<div class="avatar-fallback">AP</div>';
+  };
+
+  // QRIS: tampil gambar atau placeholder
+  (function() {
+    const container = document.getElementById('qrisContainer');
+    const img = new Image();
+    img.onload = function() {
+      const wrap = document.createElement('div');
+      wrap.className = 'qris-img-wrap';
+      wrap.appendChild(img);
+      container.appendChild(wrap);
+    };
+    img.onerror = function() {
+      container.innerHTML = `
+        <div class="qris-placeholder">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/>
+            <rect x="14" y="14" width="3" height="3"/>
+            <rect x="18" y="14" width="3" height="3"/>
+            <rect x="14" y="18" width="3" height="3"/>
+            <rect x="18" y="18" width="3" height="3"/>
+          </svg>
+          <span>Letakkan foto/qris.jpg di sini</span>
+        </div>`;
+    };
+    img.src = 'foto/QRIS.jpeg';
+    img.alt = 'QRIS Asep Prayogi';
+    img.style.cssText = 'width:100%;height:100%;object-fit:contain;';
+  })();
+
+  // Accordion toggle
+  function toggleAccordion(header) {
+    const body = header.nextElementSibling;
+    const isOpen = header.classList.contains('open');
+    header.classList.toggle('open', !isOpen);
+    body.classList.toggle('open', !isOpen);
+  }
+
+  // Copy
+  function copyText(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = '✓';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+      const toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    });
+  }
+
+  // Theme toggle
+  function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    document.getElementById('themeLabel').textContent = isDark ? 'Mode Gelap' : 'Mode Terang';
+  }
+</script>
+</body>
+</html>
