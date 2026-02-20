@@ -458,6 +458,33 @@
 
     .toast.show { transform: translateX(-50%) translateY(0); }
 
+    /* QRIS download button styles */
+    .qris-download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      color: #fff;
+      border: none;
+      border-radius: 100px;
+      padding: 10px 18px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      box-shadow: 0 8px 28px rgba(124,106,255,0.14);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+    }
+
+    .qris-download-btn svg { opacity: 0.95; }
+
+    .qris-download-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 36px rgba(124,106,255,0.18);
+      opacity: 0.98;
+    }
+
     /* WA CONTACT */
     .wa-section {
       margin-top: 32px;
@@ -548,6 +575,12 @@
     <h2 style="margin-top:20px;">Scan QRIS</h2>
     <p class="sub">Berlaku untuk semua dompet digital & mobile banking</p>
     <p class="qris-owner">👤 a.n. Asep Prayogi</p>
+    <a id="qrisDownloadBtn" class="qris-download-btn" style="display:none;" download="QRIS-AsepPrayogi.jpeg">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Unduh Gambar QRIS
+    </a>
   </div>
 
   <!-- BANK -->
@@ -719,6 +752,24 @@
       wrap.className = 'qris-img-wrap';
       wrap.appendChild(img);
       container.appendChild(wrap);
+
+      // Prepare download button as a data URL to ensure download works
+      const dlBtn = document.getElementById('qrisDownloadBtn');
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth || img.width;
+        canvas.height = img.naturalHeight || img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        // Use JPEG to keep smaller file size; fallback to PNG if needed
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+        dlBtn.href = dataUrl;
+        dlBtn.style.display = 'inline-flex';
+      } catch (e) {
+        // If drawing to canvas fails (cross-origin), fall back to direct src
+        dlBtn.href = img.src;
+        dlBtn.style.display = 'inline-flex';
+      }
     };
     img.onerror = function() {
       container.innerHTML = `
